@@ -2,13 +2,15 @@ package com.example.lobby;
 
 public class roomCard {
     private String userName;
+    private String playerTwo;
+    private int roomID;
     private String gameType;
-    private boolean isFull;
 
-    public roomCard(String userName, String gameType, boolean isFull) {
+    public roomCard(String userName, String gameType, String playerTwo, int roomID) {
         this.userName = userName;
         this.gameType = gameType;
-        this.isFull = isFull;
+        this.playerTwo = playerTwo;
+        this.roomID = roomID;
     }
     public String getUserName()
     {
