@@ -16,4 +16,8 @@ public class roomCard {
     {
         return userName;
     }
+    public int getRoomID()
+    {
+        return roomID;
+    }
 }
