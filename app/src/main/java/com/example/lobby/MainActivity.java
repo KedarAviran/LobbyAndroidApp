@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         });
         Intent myIntent = new Intent(this, GameActivity.class);
         myIntent.putExtra("turn",false);
-        myIntent.putExtra("roomID",roomID);
+        myIntent.putExtra("roomID",Integer.parseInt(roomID));
         startActivity(myIntent);
     }
 }

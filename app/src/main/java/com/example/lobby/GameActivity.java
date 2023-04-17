@@ -66,11 +66,16 @@ public class GameActivity extends AppCompatActivity {
         if(to != null) {
             to = null;
             from = (String) v.getTag();
+            updateYourMove();
+            return;
         }
-        if(from!=null&& to==null)
+        if(from!=null)
+        {
             to = (String) v.getTag();
-        if(to==null&&from==null)
-            from = (String) v.getTag();
+            updateYourMove();
+            return;
+        }
+        from = (String) v.getTag();
         updateYourMove();
     }
     private void updateYourMove()
@@ -93,7 +98,7 @@ public class GameActivity extends AppCompatActivity {
                 //if(!lastMove.equals(str))
                 //    ApplyMoveAndUpdateLastMove;
                 //    update turn
-                ((TextView)findViewById(R.id.lastMoveTextView)).setText(str);
+                ((TextView)findViewById(R.id.lastMoveTextView)).setText("Last move is:"+str);
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
@@ -104,13 +109,14 @@ public class GameActivity extends AppCompatActivity {
     }
     public void submitMove(View v)
     {
-        if(!turn)
-            return;
+        //if(!turn || from==null || to == null)
+         //   return;
         String url = "http://"+ip+":8080/setMove?roomID="+roomID +"&move="+from+to;
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 String str = new String(responseBody);
+                getLastMove();
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
@@ -118,7 +124,7 @@ public class GameActivity extends AppCompatActivity {
 
             }
         });
-        getLastMove();
+
     }
 
 }
