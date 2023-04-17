@@ -1,8 +1,10 @@
 package com.example.lobby;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -19,6 +21,9 @@ public class GameActivity extends AppCompatActivity {
     private String lastMove;
     private boolean turn;
     private int roomID;
+    private Drawable green;
+    private Drawable grey;
+    private Drawable none;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,13 +31,34 @@ public class GameActivity extends AppCompatActivity {
         from=null;
         to=null;
         lastMove=null;
+        green = getDrawable(android.R.drawable.presence_online);
+        grey = getDrawable(android.R.drawable.presence_invisible);
+        none = findViewById(R.id.b00).getForeground();
         Intent intent = getIntent();
         roomID = intent.getIntExtra("roomID",-1);
         turn = intent.getBooleanExtra("turn",false);
+        setupBoard();
     }
     public void setupBoard()
     {
-
+        setBtnColor("01",grey);setBtnColor("50",green);
+        setBtnColor("03",grey);setBtnColor("52",green);
+        setBtnColor("05",grey);setBtnColor("54",green);
+        setBtnColor("07",grey);setBtnColor("56",green);
+        setBtnColor("10",grey);setBtnColor("61",green);
+        setBtnColor("12",grey);setBtnColor("63",green);
+        setBtnColor("14",grey);setBtnColor("65",green);
+        setBtnColor("16",grey);setBtnColor("67",green);
+        setBtnColor("21",grey);setBtnColor("70",green);
+        setBtnColor("23",grey);setBtnColor("72",green);
+        setBtnColor("25",grey);setBtnColor("74",green);
+        setBtnColor("27",grey);setBtnColor("76",green);
+    }
+    private void setBtnColor(String pos, Drawable color)
+    {
+        int resID = getResources().getIdentifier("b"+pos, "id", getPackageName());
+        AppCompatButton button = (AppCompatButton)findViewById(resID);
+        button.setForeground(color);
     }
     public void onButtonClick(View v)
     {

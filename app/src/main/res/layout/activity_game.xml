@@ -39,7 +39,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@color/DarkSquares"
-                android:foreground="@android:drawable/presence_online"
                 android:tag="01"
                 android:text="A"
                 android:textColor="#FFFFFF"
@@ -63,7 +62,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@color/DarkSquares"
-                android:foreground="@android:drawable/presence_invisible"
                 android:tag="03"
                 android:text="A"
                 android:textSize="0sp" />
