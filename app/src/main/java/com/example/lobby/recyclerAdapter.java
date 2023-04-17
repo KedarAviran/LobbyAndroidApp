@@ -26,6 +26,7 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.MyView
             super(view);
             this.userTxt = view.findViewById(R.id.userTextView);
             this.joinButtun = view.findViewById(R.id.button);
+
         }
     }
     @NonNull
@@ -39,7 +40,7 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.MyView
     public void onBindViewHolder(@NonNull recyclerAdapter.MyViewHolder holder, int position) {
         String name = roomList.get(position).getUserName();
         holder.userTxt.setText(name);
-
+        holder.joinButtun.setTag(roomList.get(position).getRoomID() + ","+name);
     }
 
     @Override

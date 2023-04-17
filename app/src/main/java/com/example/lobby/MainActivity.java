@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -15,6 +17,7 @@ import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
 
+    private String ip = "10.0.0.40";
     private ArrayList<roomCard> roomList;
     private RecyclerView recyclerView;
     public void createRoom(View v)
@@ -44,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void getRooms()
     {
-        String url = "http://192.168.127.1:8080/getRooms";
+        String url = "http://"+ip+":8080/getRooms";
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -68,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void createRoom(String gameType , String name)
     {
-        String url = "http://192.168.127.1:8080/createRoom?gameType="+gameType+"&playerName="+name;
+        String url = "http://"+ip+":8080/createRoom?gameType="+gameType+"&playerName="+name;
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void joinRoom(int roomID , String name)
     {
-        String url = "http://192.168.127.1:8080/joinRoom";
+        String url = "http://"+ip+":8080/joinRoom";
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -99,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void leaveRoom(int roomID , String name)
     {
-        String url = "http://192.168.127.1:8080/leaveRoom";
+        String url = "http://"+ip+":8080/leaveRoom";
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -112,5 +115,26 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+    public void joinGame(View v)
+    {
+        String roomID = (((String)v.getTag()).split(","))[0];
+        String userName = (((String)v.getTag()).split(","))[1];
+        String url = "http://"+ip+":8080/joinRoom?roomID="+roomID+"&playerName="+userName;
+        new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                String str = new String(responseBody);
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
+            {
+
+            }
+        });
+        Intent myIntent = new Intent(this, GameActivity.class);
+        myIntent.putExtra("turn",false);
+        myIntent.putExtra("roomID",roomID);
+        startActivity(myIntent);
     }
 }

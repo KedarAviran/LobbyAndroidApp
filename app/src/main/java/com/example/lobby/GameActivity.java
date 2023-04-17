@@ -16,6 +16,7 @@ import cz.msebera.android.httpclient.Header;
 
 public class GameActivity extends AppCompatActivity {
 
+    private String ip = "10.0.0.40";
     private String from;
     private String to;
     private String lastMove;
@@ -84,7 +85,7 @@ public class GameActivity extends AppCompatActivity {
     }
     private void getLastMove()
     {
-        String url = "http://192.168.127.1:8080/getLastMove?roomID="+roomID;
+        String url = "http://"+ip+":8080/getLastMove?roomID="+roomID;
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -105,7 +106,7 @@ public class GameActivity extends AppCompatActivity {
     {
         if(!turn)
             return;
-        String url = "http://192.168.127.1:8080/setMove?roomID="+roomID +"&move="+from+to;
+        String url = "http://"+ip+":8080/setMove?roomID="+roomID +"&move="+from+to;
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -119,4 +120,5 @@ public class GameActivity extends AppCompatActivity {
         });
         getLastMove();
     }
+
 }
