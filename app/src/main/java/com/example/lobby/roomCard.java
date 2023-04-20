@@ -23,12 +23,12 @@ public class roomCard{
         this.gameType = gameType;
         this.playerTwo = playerTwo;
         this.roomID = roomID;
-
     }
     public String getUserName()
     {
         return userName;
     }
+    public String getPlayerTwo(){return  playerTwo;}
     public int getRoomID()
     {
         return roomID;

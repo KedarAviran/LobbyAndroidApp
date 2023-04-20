@@ -857,7 +857,7 @@
         android:layout_height="49dp"
         android:layout_marginBottom="136dp"
         android:onClick="submitMove"
-        android:text="END TURN"
+        android:text="SUBMIT MOVE"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -867,7 +867,7 @@
         android:id="@+id/lastMoveTextView"
         android:layout_width="299dp"
         android:layout_height="20dp"
-        android:text="White's Turn. Last move:"
+        android:text="Last move:"
         app:layout_constraintBottom_toTopOf="@+id/yourMoveTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.58"
@@ -880,10 +880,35 @@
         android:layout_width="301dp"
         android:layout_height="23dp"
         android:layout_marginBottom="52dp"
-        android:text="Your move: "
+        android:text="Your Move: "
         app:layout_constraintBottom_toTopOf="@+id/endTurnButtun"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.59"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/forfitBtn"
+        android:layout_width="213dp"
+        android:layout_height="41dp"
+        android:onClick="leaveBtn"
+        android:text="FORFIT AND LEAVE"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/endTurnButtun" />
+
+    <TextView
+        android:id="@+id/playerLeftTxt"
+        android:layout_width="303dp"
+        android:layout_height="24dp"
+        android:text="TextView"
+        android:textColor="#FF0000"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/endTurnButtun"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.601"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/yourMoveTextView"
+        app:layout_constraintVertical_bias="0.464" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -41,6 +41,8 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.MyView
         String name = roomList.get(position).getUserName();
         holder.userTxt.setText(name);
         holder.joinButtun.setTag(roomList.get(position).getRoomID() + ","+name);
+        //if(roomList.get(position).getPlayerTwo().equals("null"))  ACTIVE THEN 2 PLAYERS
+        //    holder.joinButtun.setClickable(false);
     }
 
     @Override

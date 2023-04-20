@@ -7,16 +7,20 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
-
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import cz.msebera.android.httpclient.Header;
 
 public class GameActivity extends AppCompatActivity {
 
-    private String ip = "10.0.0.40";
+    private String ip = "192.168.236.1";
+    private String name;
     private String from;
     private String to;
     private String lastMove;
@@ -25,10 +29,14 @@ public class GameActivity extends AppCompatActivity {
     private Drawable green;
     private Drawable grey;
     private Drawable none;
+    private boolean returnToLobby;
+    private boolean waitResponse;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        waitResponse=false;
+        returnToLobby=false;
         from=null;
         to=null;
         lastMove=null;
@@ -38,7 +46,21 @@ public class GameActivity extends AppCompatActivity {
         Intent intent = getIntent();
         roomID = intent.getIntExtra("roomID",-1);
         turn = intent.getBooleanExtra("turn",false);
+        name = intent.getStringExtra("name");
         setupBoard();
+        ScheduledExecutorService scheduler =
+                Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(new Runnable() {
+                    public void run() {
+                        getLastMove();
+                    }
+                }, 0, 1, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            public void run() {
+                isPlayerLeft();
+            }
+        }, 0, 5, TimeUnit.SECONDS);
+
     }
     public void setupBoard()
     {
@@ -88,24 +110,107 @@ public class GameActivity extends AppCompatActivity {
             return;
         txt.setText(txt.getText()+" To: "+to);
     }
-    private void getLastMove()
+    public void leaveBtn(View v)
     {
-        String url = "http://"+ip+":8080/getLastMove?roomID="+roomID;
+        if(returnToLobby)
+            returnToLobby();
+        leaveRoom(String.valueOf(roomID),name);
+    }
+    private void returnToLobby()
+    {
+        Intent myIntent = new Intent(this, GameActivity.class);
+        myIntent.putExtra("name",name);
+        startActivity(myIntent);
+    }
+    private void leaveRoom(String roomID , String name)
+    {
+        String url = "http://"+ip+":8080/leaveRoom?roomID="+roomID+"&playerName="+name;
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 String str = new String(responseBody);
-                //if(!lastMove.equals(str))
-                //    ApplyMoveAndUpdateLastMove;
-                //    update turn
-                ((TextView)findViewById(R.id.lastMoveTextView)).setText("Last move is:"+str);
+                returnToLobby();
             }
+
             @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
-            {
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
 
             }
         });
+    }
+    private void isPlayerLeft()
+    {
+        String url = "http://"+ip+":8080/isPlayerLeft?roomID="+roomID;
+        new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                String str = new String(responseBody);
+                if(str.length()==0)
+                    return;
+                ((TextView)findViewById(R.id.playerLeftTxt)).setText(str+" HAS LEFT, YOU WIN.");
+                ((TextView)findViewById(R.id.playerLeftTxt)).setVisibility(View.VISIBLE);
+                returnToLobby=true;
+                ((Button)findViewById(R.id.forfitBtn)).setText("Leave to Lobby");
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+            @Override
+            public boolean getUseSynchronousMode() {
+                return false;
+            }
+        });
+    }
+    private void applyMove(String move)
+    {
+        String from = move.substring(0,2);
+        String to = move.substring(2,4);
+        int resID = getResources().getIdentifier("b"+from, "id", getPackageName());
+        AppCompatButton fromBtn = (AppCompatButton)findViewById(resID);
+        resID = getResources().getIdentifier("b"+to, "id", getPackageName());
+        AppCompatButton toBtn = (AppCompatButton)findViewById(resID);
+        toBtn.setForeground(fromBtn.getForeground());
+        fromBtn.setForeground(none);
+        int fromY = Integer.parseInt(move.charAt(0)+"");
+        int fromX = Integer.parseInt(move.charAt(1)+"");
+        int toY = Integer.parseInt(move.charAt(2)+"");
+        int toX = Integer.parseInt(move.charAt(3)+"");
+        int midX = (toX + fromX) /2;
+        int midY = (toY + fromY) /2;
+        if(Math.abs(fromX-toX) == 2)
+        {
+            resID = getResources().getIdentifier("b"+midY+midX, "id", getPackageName());
+            AppCompatButton midBtn = (AppCompatButton)findViewById(resID);
+            midBtn.setForeground(none);
+        }
+    }
+    private void getLastMove()
+    {
+            String url = "http://"+ip+":8080/getLastMove?roomID="+roomID;
+            new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    String str = new String(responseBody);
+                    if(lastMove!=null)
+                        if(lastMove.equals(str))
+                            return;
+                    lastMove = str;
+                    applyMove(str);
+                    turn = !turn;
+                    ((TextView)findViewById(R.id.lastMoveTextView)).setText("Last move is: "+str);
+                }
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
+                {
+
+                }
+                @Override
+                public boolean getUseSynchronousMode() {
+                    return false;
+                }
+            });
     }
     public void submitMove(View v)
     {

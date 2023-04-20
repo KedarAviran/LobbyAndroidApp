@@ -18,24 +18,35 @@
 
     <Button
         android:id="@+id/createBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="103dp"
+        android:layout_height="51dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="32dp"
         android:onClick="createRoom"
         android:text="Create"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/refreshBtn"
-        app:layout_constraintHorizontal_bias="0.294"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recycler" />
+        app:layout_constraintEnd_toStartOf="@+id/refreshBtn" />
 
     <Button
         android:id="@+id/refreshBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="52dp"
+        android:layout_width="117dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="32dp"
         android:onClick="refresh"
         android:text="Refresh"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recycler" />
+        app:layout_constraintEnd_toStartOf="@+id/cancelGameBtn" />
+
+    <Button
+        android:id="@+id/cancelGameBtn"
+        android:layout_width="122dp"
+        android:layout_height="55dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="32dp"
+        android:checkable="false"
+        android:onClick="leave"
+        android:text="Cancel Game"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
