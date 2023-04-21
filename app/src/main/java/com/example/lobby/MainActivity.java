@@ -26,14 +26,16 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private String name;
     private String hostRoomID;
-    public void createRoom(View v)
-    {
-        createRoom("Chess", name);
+    private boolean mode = true; // false = history  // true = rooms
+
+    public void createRoom(View v) {
+        createRoom("Checkers", name);
     }
-    public void refresh(View v)
-    {
+
+    public void refresh(View v) {
         getRooms();
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,56 +45,99 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler);
         roomList = new ArrayList<>();
         getRooms();
-        setAdapter();
+        setAdapter("Games");
         ScheduledExecutorService scheduler =
                 Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate
                 (new Runnable() {
                     public void run() {
-                        getRooms();
+                        if (mode)
+                            getRooms();
                     }
-                }, 0, 2, TimeUnit.SECONDS);
+                }, 0, 5, TimeUnit.SECONDS);
     }
-    private void setAdapter()
-    {
-        recyclerAdapter adapter = new recyclerAdapter(roomList);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(adapter);
+
+    public void changeMod(View v) {
+        mode = !mode;
+        if (mode) {
+            ((Button) findViewById(R.id.gameHistoryBtn)).setText("GAME HISTORY");
+            getRooms();
+        } else {
+            ((Button) findViewById(R.id.gameHistoryBtn)).setText("GAME LOBBY");
+            getHistory();
+        }
     }
-    private void getRooms()
-    {
-        String url = "http://"+ip+":8080/getRooms";
+
+    private void getHistory() {
+        String url = "http://" + ip + ":8080/getGameHistory";
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 roomList.clear();
                 String str = new String(responseBody);
-                if(str.length()!=0)
-                    for (String rm: str.split(" "))
-                    {
+                if (str.length() != 0)
+                    for (String rm : str.split(" ")) {
                         String[] values = rm.split(",");
-                        roomList.add(new roomCard(values[1],values[3],values[2],Integer.parseInt(values[0])));
+                        roomList.add(new roomCard(values[1], values[3], values[2], Integer.parseInt(values[0])));
                     }
-                setAdapter();
+                setAdapter("History");
             }
+
             @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
-            {
-                roomList.add(new roomCard("error","error","error",0));
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                roomList.add(new roomCard("error", "error", "error", 0));
+            }
+
+            public boolean getUseSynchronousMode() {
+                return false;
             }
         });
     }
-    private void createRoom(String gameType , String name)
+
+    private void setAdapter(String type) // History or Games
     {
-        String url = "http://"+ip+":8080/createRoom?gameType="+gameType+"&playerName="+name;
+        recyclerAdapter gamesAdapter = new recyclerAdapter(roomList);
+        gameHistoryAdapter historyAdapter = new gameHistoryAdapter(roomList);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        if (type.equals("History"))
+            recyclerView.setAdapter(historyAdapter);
+        else
+            recyclerView.setAdapter(gamesAdapter);
+    }
+
+    private void getRooms() {
+        String url = "http://" + ip + ":8080/getRooms";
+        new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                roomList.clear();
+                String str = new String(responseBody);
+                if (str.length() != 0)
+                    for (String rm : str.split(" ")) {
+                        String[] values = rm.split(",");
+                        roomList.add(new roomCard(values[1], values[3], values[2], Integer.parseInt(values[0])));
+                    }
+                setAdapter("Games");
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                roomList.add(new roomCard("error", "error", "error", 0));
+            }
+            //public boolean getUseSynchronousMode() {return false;}
+        });
+    }
+
+    private void createRoom(String gameType, String name) {
+        String url = "http://" + ip + ":8080/createRoom?gameType=" + gameType + "&playerName=" + name;
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 getRooms();
                 hostRoomID = new String(responseBody);
-                ((Button)findViewById(R.id.cancelGameBtn)).setClickable(true);
+                ((Button) findViewById(R.id.cancelGameBtn)).setClickable(true);
             }
 
             @Override
@@ -101,13 +146,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    public void leave(View v)
-    {
-        leaveRoom(hostRoomID,name);
+
+    public void leave(View v) {
+        leaveRoom(hostRoomID, name);
     }
-    private void leaveRoom(String roomID , String name)
-    {
-        String url = "http://"+ip+":8080/leaveRoom?roomID="+roomID+"&playerName="+name;
+
+    private void leaveRoom(String roomID, String name) {
+        String url = "http://" + ip + ":8080/leaveRoom?roomID=" + roomID + "&playerName=" + name;
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -121,26 +166,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    public void joinGame(View v)
-    {
-        String roomID = (((String)v.getTag()).split(","))[0];
-        String userName = (((String)v.getTag()).split(","))[1];
-        String url = "http://"+ip+":8080/joinRoom?roomID="+roomID+"&playerName="+userName;
+
+    public void joinGame(View v) {
+        String roomID = (((String) v.getTag()).split(","))[0];
+        String userName = (((String) v.getTag()).split(","))[1];
+        String url = "http://" + ip + ":8080/joinRoom?roomID=" + roomID + "&playerName=" + userName;
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 String str = new String(responseBody);
             }
+
             @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
-            {
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
 
             }
         });
         Intent myIntent = new Intent(this, GameActivity.class);
-        myIntent.putExtra("turn",false);
-        myIntent.putExtra("roomID",Integer.parseInt(roomID));
-        myIntent.putExtra("name",name);
+        myIntent.putExtra("turn", false);
+        myIntent.putExtra("roomID", Integer.parseInt(roomID));
+        myIntent.putExtra("preview", false);
+        myIntent.putExtra("name", name);
+        startActivity(myIntent);
+    }
+
+    public void ViewGame(View v) {
+        String roomID = (((String) v.getTag()).split(","))[0];
+        Intent myIntent = new Intent(this, GameActivity.class);
+        myIntent.putExtra("roomID", Integer.parseInt(roomID));
+        myIntent.putExtra("preview", true);
         startActivity(myIntent);
     }
 }

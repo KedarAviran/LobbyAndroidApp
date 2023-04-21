@@ -18,23 +18,23 @@
 
     <Button
         android:id="@+id/createBtn"
-        android:layout_width="103dp"
-        android:layout_height="51dp"
+        android:layout_width="104dp"
+        android:layout_height="54dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="32dp"
         android:onClick="createRoom"
         android:text="Create"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/refreshBtn" />
+        app:layout_constraintEnd_toStartOf="@+id/gameHistoryBtn" />
 
     <Button
-        android:id="@+id/refreshBtn"
-        android:layout_width="117dp"
-        android:layout_height="50dp"
+        android:id="@+id/gameHistoryBtn"
+        android:layout_width="115dp"
+        android:layout_height="55dp"
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="32dp"
-        android:onClick="refresh"
-        android:text="Refresh"
+        android:onClick="changeMod"
+        android:text="Game History"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/cancelGameBtn" />
 

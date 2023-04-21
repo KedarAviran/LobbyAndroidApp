@@ -11,7 +11,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import cz.msebera.android.httpclient.Header;
 
-public class roomCard{
+public class roomCard {
     private String userName;
     private String playerTwo;
     private int roomID;
@@ -24,13 +24,16 @@ public class roomCard{
         this.playerTwo = playerTwo;
         this.roomID = roomID;
     }
-    public String getUserName()
-    {
+
+    public String getUserName() {
         return userName;
     }
-    public String getPlayerTwo(){return  playerTwo;}
-    public int getRoomID()
-    {
+
+    public String getPlayerTwo() {
+        return playerTwo;
+    }
+
+    public int getRoomID() {
         return roomID;
     }
 

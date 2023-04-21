@@ -11,18 +11,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.MyViewHolder> {
+public class gameHistoryAdapter extends RecyclerView.Adapter<gameHistoryAdapter.MyViewHolderGameHistory> {
     private ArrayList<roomCard> roomList;
 
-    public recyclerAdapter(ArrayList<roomCard> lst) {
+    public gameHistoryAdapter(ArrayList<roomCard> lst) {
         roomList = lst;
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    public class MyViewHolderGameHistory extends RecyclerView.ViewHolder {
         private TextView userTxt;
         private Button joinButtun;
 
-        public MyViewHolder(final View view) {
+        public MyViewHolderGameHistory(final View view) {
             super(view);
             this.userTxt = view.findViewById(R.id.userTextView);
             this.joinButtun = view.findViewById(R.id.viewGameBtn);
@@ -32,13 +32,13 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.MyView
 
     @NonNull
     @Override
-    public recyclerAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_items, parent, false);
-        return new MyViewHolder(itemView);
+    public gameHistoryAdapter.MyViewHolderGameHistory onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.game_history_item, parent, false);
+        return new MyViewHolderGameHistory(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull recyclerAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull gameHistoryAdapter.MyViewHolderGameHistory holder, int position) {
         String name = roomList.get(position).getUserName();
         holder.userTxt.setText(name);
         holder.joinButtun.setTag(roomList.get(position).getRoomID() + "," + name);
