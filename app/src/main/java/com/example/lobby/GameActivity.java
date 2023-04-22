@@ -6,6 +6,8 @@ import androidx.appcompat.widget.AppCompatButton;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -36,13 +38,11 @@ public class GameActivity extends AppCompatActivity {
     private Drawable grey;
     private Drawable none;
     private boolean returnToLobby;
-    private boolean waitResponse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        waitResponse = false;
         returnToLobby = false;
         from = null;
         to = null;
@@ -55,6 +55,7 @@ public class GameActivity extends AppCompatActivity {
         turn = intent.getBooleanExtra("turn", false);
         name = intent.getStringExtra("name");
         preview = intent.getBooleanExtra("preview", false);
+        ((Button) findViewById(R.id.nextMoveBtn)).setVisibility(View.INVISIBLE);
         setupBoard();
         if (preview) {
             getMoveHistory(String.valueOf(roomID));
@@ -65,22 +66,28 @@ public class GameActivity extends AppCompatActivity {
             returnToLobby = true;
             return;
         }
-
-        ScheduledExecutorService scheduler =
-                Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(new Runnable() {
-            public void run() {
-                getLastMove();
-            }
-        }, 0, 1, TimeUnit.SECONDS);
-        scheduler.scheduleAtFixedRate(new Runnable() {
-            public void run() {
-                isPlayerLeft();
-            }
-        }, 0, 5, TimeUnit.SECONDS);
-
+        setLooper();
     }
-
+    private void setLooper()
+    {
+        Handler handler = new Handler();
+        Runnable runnableCode = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if(!isGameOver) {
+                        isPlayerLeft();
+                        getLastMove();
+                    }
+                }
+                catch (Exception e){
+                    Log.d("MyError", e.toString());
+                }
+                handler.postDelayed(this, 2000);
+            }
+        };
+        handler.post(runnableCode);
+    }
     public void setupBoard() {
         setBtnColor("01", grey);
         setBtnColor("50", green);
@@ -166,11 +173,12 @@ public class GameActivity extends AppCompatActivity {
     public void leaveBtn(View v) {
         if (returnToLobby)
             returnToLobby();
+        isGameOver=true;
         leaveRoom(String.valueOf(roomID), name);
     }
 
     private void returnToLobby() {
-        Intent myIntent = new Intent(this, GameActivity.class);
+        Intent myIntent = new Intent(this, MainActivity.class);
         myIntent.putExtra("name", name);
         startActivity(myIntent);
     }
@@ -199,10 +207,23 @@ public class GameActivity extends AppCompatActivity {
                 String str = new String(responseBody);
                 if (str.length() == 0)
                     return;
-                ((TextView) findViewById(R.id.playerLeftTxt)).setText(str + " HAS LEFT, YOU WIN.");
-                ((TextView) findViewById(R.id.playerLeftTxt)).setVisibility(View.VISIBLE);
-                returnToLobby = true;
-                ((Button) findViewById(R.id.forfitBtn)).setText("Leave to Lobby");
+                isGameOver=true;
+                try {
+                    runOnUiThread(() -> {
+
+                        ((TextView) findViewById(R.id.playerLeftTxt)).setText(str + " HAS LEFT, YOU WIN.");
+                        ((TextView) findViewById(R.id.playerLeftTxt)).setVisibility(View.VISIBLE);
+                        returnToLobby = true;
+                        ((Button) findViewById(R.id.forfitBtn)).setText("Leave to Lobby");
+
+                    });
+
+                }
+                catch (Exception e)
+                {
+                    int x =5;
+                }
+
             }
 
             @Override
@@ -247,17 +268,30 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 String str = new String(responseBody);
-                if (str.equals("true")) {
-                    isGameOver = true;
-                    ((TextView) findViewById(R.id.lastMoveTextView)).setText("GAME OVER YOU LOST");
+                try {
+                    runOnUiThread(() -> {
+                        if (str.equals("true")) {
+                            isGameOver = true;
+                            ((TextView) findViewById(R.id.lastMoveTextView)).setText("GAME OVER YOU LOST");
+                        }
+                        if(str.equals(""))
+                            return;
+                        if (lastMove != null)
+                            if (lastMove.equals(str))
+                                return;
+                        lastMove = str;
+                        applyMove(str);
+                        turn = !turn;
+                        ((TextView) findViewById(R.id.lastMoveTextView)).setText("Last move is: " + str);
+
+                    });
+
                 }
-                if (lastMove != null)
-                    if (lastMove.equals(str))
-                        return;
-                lastMove = str;
-                applyMove(str);
-                turn = !turn;
-                ((TextView) findViewById(R.id.lastMoveTextView)).setText("Last move is: " + str);
+                catch (Exception e)
+                {
+                    int x =5;
+                }
+
             }
 
             @Override
