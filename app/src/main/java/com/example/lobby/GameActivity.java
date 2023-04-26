@@ -221,7 +221,7 @@ public class GameActivity extends AppCompatActivity {
                 }
                 catch (Exception e)
                 {
-                    int x =5;
+                    Log.d("error", "error");
                 }
 
             }
@@ -289,7 +289,7 @@ public class GameActivity extends AppCompatActivity {
                 }
                 catch (Exception e)
                 {
-                    int x =5;
+                    Log.d("MyError", e.toString());
                 }
 
             }
